@@ -826,6 +826,7 @@ Here's an example showing what a couple nodes on the timeline might look like, w
 
 ---
 
+
 ==================================================
 ==================================================
 =================               ==================
@@ -834,7 +835,6 @@ Here's an example showing what a couple nodes on the timeline might look like, w
 ==================================================
 ==================================================
 
-Great iterative changes! You've refined some existing features and introduced a key new one: node selection. Let's review your updates and integrate the node selection functionality.
 
 ---
 
@@ -958,3 +958,142 @@ Here's an example showing what a couple nodes on the timeline might look like, w
 * No specific frontend framework (e.g., React, Vue, Svelte) is required or preferred for this task. Use vanilla JavaScript, HTML, and CSS, leveraging the HTML `<canvas>` element for drawing the timeline.
 
 ---
+
+================= I tried running this, but got back this: ==================
+
+This revised prompt looks even stronger! You've made some excellent clarifications and additions, particularly with the inline dates, the specific zoom level details, and the fantastic node selection feature.
+
+Here's a review of your changes, along with a minor clarification for the scrolling keys, making the prompt even more precise:
+
+---
+
+# HTML Page: Core Timeline Display
+
+**GOAL:** Create the foundational HTML page (`index.html`), associated CSS, and JavaScript files to display a basic, interactive timeline. This initial deliverable focuses solely on the visual representation, horizontal scrolling, and zoom functionality of the timeline, adhering to the specified retro, text-based aesthetic.
+
+**IMPORTANT:** The FastAPI backend is a separate, existing project. This prompt **does not** include any backend integration (API calls, data fetching, authentication). All timeline data for this phase should be simulated or hardcoded on the frontend for demonstration purposes.
+
+---
+
+## 1. Aesthetic Requirements
+
+The web application aims for an old-school, **DOS-like look and feel**, characterized by **all text-based elements and bold colors**.
+
+### 1.1. Visuals
+
+* **Font Family:** The primary font family for the entire page must be `monospace`. Select a font that evokes an old-school DOS aesthetic (e.g., "Press Start 2P", "IBM VGA9", or a generic system monospace font like `Consolas`, `Lucida Console`, `Monaco`, `monospace`).
+* **Background:** The background "behind" the timeline should be `black`.
+* **Drawing Lines:** All timeline "drawing" lines (e.g., boxes, the main timeline line itself) should be `white`.
+* **Color Palette (Recommended):** Adhere to a limited, high-contrast color palette reminiscent of old CRT displays. Suggested colors for various elements (e.g., green for positive, red for negative, white for neutral) will be specified for specific elements later, but overall, maintain a bold, limited scheme.
+* **HTML Structure:** All HTML element and attribute names must be in **lowercase**.
+
+## 2. Architecture & File Structure
+
+The frontend code should be organized into separate, cohesive files.
+
+* `index.html`: The main HTML document. This will contain the primary `<canvas>` element for rendering the timeline.
+* `styles.css`: Contains all CSS styling rules for the overall page and any non-canvas elements (e.g., scroll indicators, potential overlays).
+* `timeline.js`: Contains JavaScript code specifically for drawing, rendering, and managing the timeline's visual elements onto the `<canvas>`. This includes functions for drawing nodes, lines, dates, and handling different zoom levels.
+* `interaction.js`: Contains JavaScript code specifically for handling user interactions (keyboard events for scrolling, zooming, node selection; mouse hover for node detail). This module will call functions in `timeline.js` to trigger redraws.
+* `main.js`: The main application entry point, responsible for initializing the canvas, setting up event listeners, loading initial data (simulated), and orchestrating the other JavaScript modules.
+
+---
+
+## 3. Core Timeline Display
+
+The timeline represents events in time, with earlier events positioned on the left and later events on the right.
+
+### 3.1. Timeline Structure
+
+* The timeline will consist of a **horizontal line** drawn on the `<canvas>`.
+* **Nodes** will branch off perpendicularly from this line, either upwards or downwards.
+* Nodes should be rendered as **ASCII-style boxes** using characters drawn on the canvas.
+    * Node text: Up to **15 characters**. If longer, it must be truncated with an ellipsis (`...`), for a total maximum of **18 characters** including the ellipsis.
+    * Example node representation:
+        ```
+        +---------------------*
+        <-| Node Title Here   |->
+        +---------------------*
+              |
+              |
+        ```
+* The timeline should dynamically adjust its virtual width (the total scrollable area) to match the combined span of all nodes from the earliest to the latest date.
+
+### 3.2. Dates
+
+* Dates should be displayed **inline with the main timeline horizontal line**, as part of the line itself, rendered on the canvas.
+    * Example date inline:
+        ```
+        ---------2025-05------------
+        ```
+* Dates should appear at **regular, consistent intervals** along the timeline, dependent on the current zoom level.
+* If two nodes share the same month, they should be ordered **alphabetically** when displayed on the timeline.
+
+### 3.3. Example Timeline Segment
+
+Here's an example showing what a couple nodes on the timeline might look like, with inline dates. The main timeline line (`-` characters) should extend across the entire visible and scrollable range.
+
+```
+          +---------------------* =----------------------*
+          <-| Star Treks: The ... |->       <-| Star Trek: Deep ...  |->
+          +---------------------* +----------------------*
+                |                                 |
+                |                                 |
+--- 1987 -------- 1988 ------- 1989 ------- 1990 -------- 1991 -------
+```
+
+---
+
+## 4. Timeline Interaction
+
+### 4.1. Horizontal Scrolling
+
+* **Keyboard Control: Jump:**
+    * When the user presses the **"Up Arrow" key**, the timeline should immediately jump **50% of the current screen width** to the **left (back in time)**.
+    * When the user presses the **"Down Arrow" key**, the timeline should immediately jump **50% of the current screen width** to the **right (forward in time)**.
+
+### 4.2. Zooming
+
+* Users should be able to **zoom in and out** of the timeline.
+* **Zoom Mechanism:** Zooming is controlled with the **"Page Up" key (zoom in)** and **"Page Down" key (zoom out)**.
+* **Zoom Levels (Discrete):** There are three distinct, discrete levels of zoom:
+    * **Month View:**
+        * Timeline dates displayed in "YYYY-MM" format.
+        * Nodes display their **full title text**.
+    * **Year View:**
+        * Timeline dates displayed in "YYYY" format.
+        * Nodes display their **full title text if it fits** within the character limits of the zoomed-out node size; otherwise, truncate with an ellipsis.
+        * A **smaller font size** should be used for all text compared to the Month View.
+    * **Decade View:**
+        * Timeline dates displayed in "'YY" format (e.g., `'20` for 2020).
+        * An **even smaller font size** should be used for all text compared to the Year View. (Start with a reasonable initial smaller size, this can be fine-tuned later).
+        * Node text should be abbreviated significantly (e.g., to a single character or a very short abbreviation) or truncated with ellipsis to fit the very small node size.
+* **Mousing Over Node (Zoom-Dependent Detail):**
+    * When the mouse hovers over an abbreviated or single-character node, its **full title** (or a more detailed abbreviation appropriate for the next higher zoom level) should temporarily appear as an overlay or redraw of that specific node area.
+    * When the mouse moves off the node, its text should revert to the display appropriate for the current zoom level.
+
+### 4.3. Node Selection (NEW FEATURE)
+
+* **Selection Visuals:**
+    * When a node is selected, its **drawing characters (the ASCII box lines and arrows) should change from white to yellow**.
+    * The node's title text should remain white (or its default color).
+* **Keyboard Navigation:**
+    * Users can navigate between nodes using the **"Left Arrow" key** (to select the previous node in chronological order) and the **"Right Arrow" key** (to select the next node in chronological order).
+    * When the timeline scrolls, the selected node should remain in view, and the timeline should automatically adjust its scroll position to keep the selected node visible and ideally centered (if space allows).
+* **Initial State:** Upon initial load, no node should be selected. The first press of a Left or Right Arrow key should select the chronologically first or last node respectively (or the closest node to the current viewport center).
+
+---
+
+## 5. Unknown / Don't Care
+
+* No specific frontend framework (e.g., React, Vue, Svelte) is required or preferred for this task. Use vanilla JavaScript, HTML, and CSS, leveraging the HTML `<canvas>` element for drawing the timeline.
+
+---
+
+This refined prompt provides a solid foundation for building the core timeline functionality. The specifications for keyboard navigation, zoom levels, and node selection are clear and actionable.
+
+Are there any other initial display or interaction elements you'd like to define before diving into the next phase of the design?
+
+======= next prompt =======
+
+< I'm running the prompt Gemini returned in a fresh window >

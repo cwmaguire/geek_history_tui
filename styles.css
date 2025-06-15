@@ -1,0 +1,12 @@
+body {
+    background-color: black;
+    color: white;
+    font-family: "Press Start 2P", "IBM VGA9", Consolas, "Lucida Console", Monaco, monospace;
+    margin: 0;
+    overflow: hidden; /* Hide scrollbars, as scrolling is handled by JS */
+}
+
+#timelineCanvas {
+    display: block;
+    background-color: black; /* Canvas background should match body */
+}
