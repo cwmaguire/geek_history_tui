@@ -1,0 +1,960 @@
+Prompts
+
+┏━━━━━━━━━━━━━━━━┓
+┃   2025-06-14   ┃
+┗━━━━━━━━━━━━━━━━┛
+
+Write a Lua plugin for Neovim that prints an ascii box with today's date in it.
+
+Here's an example (delimited by triple single quotes):
+'''
+┏━━━━━━━━━━━━━━━━┓
+┃   2025-06-14   ┃
+┗━━━━━━━━━━━━━━━━┛
+'''
+
+
+┏━━━━━━━━━━━━━━━━┓
+┃   2025-06-15   ┃
+┗━━━━━━━━━━━━━━━━┛
+
+I've created a design document prompt for a web app which I've pasted below:
+please give me some advice on this prompt: whether it's feasible to one-shot an
+entire web app; how it could be broken up; how it could be better worded; design
+ideas; how it could be better orgnanized or formatted.
+
+I don't want you to build the web app, I just want you to review my prompt.
+
+The prompt is below the triple equals signs:
+
+
+===
+
+**** Title ***
+
+"Geek History" Timeline Web App, a.k.a. "Origin Story"
+
+**** Intro ****
+
+I'm creating a web application that will display a timeline. The app is either
+called "Geek History" or "Origin Story". The idea is that geeks always like to
+talk about the books, games, movies, and TV shows that formed their "geekness".
+I want an app where people have a timeline that they can add books, movies, TV
+shows, and games to.
+
+I'm going for an old school, DOS-like look and feel with all text and bold
+colors.
+
+**** Product Design ****
+
+*** Data Storage ***
+
+I will have a FastAPI REST server running that the application will connect to.
+This web application will execute REST calls on the FastAPI server to get and
+save data.
+
+*** Archetecture ***
+
+All JavaScript should be in separate files. JavaScript files should be cohesive:
+code in the same file should be related.
+
+  All GUI/TUI code should be in a separate file, or files.
+  e.g. drawing and erasing/restoring "windows"
+  e.g. drawing and erasing/restoring arrows
+  e.g. zooming in and out
+
+CSS styling code should be in a separate file.
+
+HTML should use lower case at all times.
+
+*** Users ***
+
+There are three types of users of this application
+(each dash is a bullet, indented bullets are children of the closest less-indented bullet above):
+- admin
+  - can do anything
+- owner
+  - owns a specific timeline
+    - can edit the timeline
+      - add a picture
+      - remove a picture
+      - add a timeline node
+      - modify review characters
+      - edit the context
+- viewer
+  - can view anything that isn't an edit button
+    - e.g. the '+' icon in a photo browser "window"
+
+*** Sign-up and Login with OAuth ***
+
+I'll need OAuth for sign-up (account creation) and login. Users should be able
+to log in from any of the following:
+- Facebook
+- Google
+- X (formerly Twitter)
+
+I'll need a sign-up / login page. It should be text-based, or text-themed.
+
+*** text-based GUI / web-based TUI ***
+
+The timeline represents events in time with earlier events being on the left and
+later events being on the right.
+The timeline will consists of a line with nodes branch off perpendicular to the
+line either up or down.
+Noes are ascii boxes with text up to 15 characters long with an ellipsis replace
+any text longer than 15 characters, up to a total of 18 characters including the
+three dots for the ellipsis.
+The timeline should be scrollable left and right to go forward and back in time.
+The amount the page scrolls should match the size of the timeline. A viewing
+user should also be able to zoom in and out of the timeline: elements of the
+timeline will decrease in detail as the user zooms out, perhaps going down to
+The timeline should show dates printed above or below it, as space allows, at regular
+intervals according to the zoom level: being zoomed out might show years, or
+decades, being zoomed in might show months; there should be no resolution higher
+than months: I don't want people measuring their engagements in days: if two
+nodes share the same month, they should be order alphabetically.
+just a single character (e.g. *) when the user is zoomed far out.
+
+All mentions of "windows" should be implemented with ascii boxes.
+
+** example **
+
+Here's an example showing what a couple nodes on the timeline might look like (delimited by triple backticks):
+
+```
+  + ? p                          = ? p
+  +---------------------*        +----------------------*
+<-| Star Treks: The ... |->    <-| Star Trek: Deep ...  |->
+  +---------------------*        +----------------------*  
+          |                         |
+          |                         |
+-------------------------------------------
+```
+
+*** detailed design bullet points ***
+
+Here's an indented, bulleted list (each dash is a bullet, indented bullets are children of the closest less-indented bullet above) functionality I want in the text-based GUI (or web-based TUI):
+- The font family for the whole page should be monospace
+- The background "behind" the timeline should be black
+- All timeline "drawing" lines (e.g. boxes, lines) should be white
+- scrolling the timeline left and right
+  - Any user (admin, owner, viewer) should see on the extreme edges of the page
+    arrows to scroll the timeline left and right
+    - left should be '<-'
+    - right should be '->'
+  - INTERACTION: when the user hovers over a left/right control the timeline should
+    smoothly scroll in the direction the user hovered over
+  - INTERACTION: when the user clicks on left or right, the timeline should jump
+    75% of a screen width in the scroll direction.
+  - If the user scrolls right, it means the left part of the timeline will
+    disappear, the timeline will shift to the left, and more of the timeline on
+    the right will appear.
+- INTERACTION: An owner can add new nodes by clicking on the timeline line
+  - The mouse cursor will change to a plus when the user is over the timeline
+- nodes on the timeline should be replaced with abbreviations when the zoom
+  level makes them too small to fit words, and they should be replaced by a single
+  letter 
+  - mousing over an node should replace the elment with it's full name
+    - mouse off the node should replace the original text appropriate for the zoom level
+- Each node has "icons", which are just ascii characters for information on that item:
+  - A "score" consisting of '+' (plus) or '=' (equaals) or '-' (minuse)
+    - '+' (plus) represents "This was good"
+      - plus should be green
+    - '=' (equals) represents "This was okay"
+      - equals should be white
+    - '-' (minus/dash) represents "This was bad"
+      - minus should be red
+  - A '?' (question mark)
+    - When the user hovers the mouse over the question mark a review "window" (which is just
+      ascii text) appears "over" the timeline (the window can appear over, or the text can
+      temporarily replace the obscured text on the timeline
+  - The letter 'p'
+    - INTERACTION: when the user clicks on the letter
+      'p' a "window" (ascii box) should come up with a photo browser
+      - the pholo browser "window" should be text based
+        - the photo browser can be an HTML element above (i.e. closer on the z axis) the
+	  timeline, or it can replace the text on the timeline
+      - the photo browser should have an 'x' in the top right corner to close it
+        - when the photo browser is closed, the obscured portion of the timeline should
+	  reappear
+      - the photo browser should show one thumbnail of a photo at a time
+      - the photo browser window should have text scroll controls, e.g. '<' and '>'
+        - the scroll controls should be on the left and right sides of the photo
+      - For the owner of the timeline only, there should be a '+' plus symbol below
+        the current photo to add new photos
+      - For the owner of the
+- Each timeline node has left and right arrows
+  - '<-' (less than, dash)
+  - '->' (dash, greater than)
+  - INTERACTION: When the user hovers over these arrows lines will appear connected that node to
+    every node that connects to it. The user who owns the graph can specify nodes
+    that lead to each other.
+  - The arrow on the left (the "left arrow") shows lines leading into this node; i.e.
+    media in the owner's life that lead to this node.
+    - For example: "Star Trek The Next Generation" might have lead to "Star Trek Deep Space Nine"
+      - When the user hovers over the right arrow of "Star Trek The Next Generation" then a line
+        should appear linking to "Star Trek Deep Space Nine"
+  - INTERACTION: when an owner clicks on an icon, they can edit the information
+    associated with the icon:
+      - INTERACTION: when the owner clicks on the '+' or '=' or '-' (which is
+	the score) then they get a small "window" where they can select a
+	different score (from the same set: '+', '=', and '-'); each score
+	"icon" (character) will have a description beside it:
+	- '+' good
+	- '=' meh
+	- '-' bad
+
+** example **
+
+Here's an example showing a line pointing from the "Star Trek: The Next
+Generation" to "Star Trek: Deep Space Nine". The caret (^) is not part of the
+output; it just marks the space below where the user would hover their mouse to
+show the line. (delimited by triple backticks):
+```
+  + ? p                          = ? p
+  +---------------------*        +----------------------*
+<-| Star Treks: The ... |------->| Star Trek: Deep ...  |->
+  +---------------------* ^      +----------------------*  
+          |                         |
+          |                         |
+-------------------------------------------
+```
+
+**** Unknown / Don't care ****
+
+I don't have an opinion on what frameworks, if any, should be used to build this GUI.
+
+===
+
+Gemini's Response
+
+Your design document prompt is quite detailed and shows a clear vision for your "Geek History" web app! It's an interesting concept with a distinct aesthetic. Let's break down your prompt and provide some advice.
+
+---
+
+## Feasibility of a One-Shot Web App
+
+**It's generally not feasible to "one-shot" an entire web app of this complexity.** While an AI could generate a significant amount of code based on your prompt, attempting to get a fully functional, bug-free, and well-structured web application in a single go is highly unlikely for several reasons:
+
+* **Complexity and Interdependencies:** Your app has a front-end with specific UI/UX requirements, a backend (FastAPI), OAuth integration, and intricate data interactions. These components are highly interdependent, and a single generation is unlikely to perfectly wire everything together.
+* **Ambiguity and Edge Cases:** Even with a detailed prompt, there will always be ambiguities, edge cases, and user flow decisions that require human intervention and iteration. For example, how exactly does the photo upload process work? What happens if a user tries to add a node at an existing date?
+* **Debugging and Testing:** No code is perfect the first time. Debugging and testing a large, generated codebase can be more challenging than building it incrementally, as you might not understand the underlying design choices made by the AI.
+* **Iterative Development:** Software development is inherently iterative. You'll likely discover new requirements or better ways to implement existing ones as you see the application in action. A one-shot approach limits this flexibility.
+* **Security Considerations:** OAuth and user management require careful implementation to be secure. A one-shot approach might miss critical security best practices.
+
+**Instead, think of AI as a powerful co-developer or assistant.** It can generate significant portions of code, suggest architectures, and help with specific components, but a human will need to orchestrate, integrate, refine, and debug.
+
+---
+
+## How to Break Up Your Prompt
+
+To leverage AI effectively and build this application, you should break down your prompt into more manageable, incremental tasks. Here's a suggested breakdown:
+
+### Phase 1: Core Backend & Data Model
+
+1.  **FastAPI Server Setup:** Prompt for the basic FastAPI application structure, including CORS setup.
+2.  **User Authentication (OAuth):** Focus solely on implementing OAuth for Google, Facebook, and X. This involves user registration, login, and token management on the backend.
+3.  **Data Models (Pydantic/SQLAlchemy):** Define the Pydantic models for your data (Users, Timelines, TimelineNodes, Photos, Reviews, etc.) and their relationships. If you plan to use a database, also prompt for the SQLAlchemy models (or similar for your chosen ORM/ODM).
+4.  **Core CRUD API Endpoints:** Generate the basic CRUD (Create, Read, Update, Delete) endpoints for `Timelines` and `TimelineNodes`. Start simple, without all the detailed interactions yet.
+
+### Phase 2: Core Frontend Structure & Basic UI
+
+1.  **HTML Structure:** Prompt for the initial `index.html` file with placeholders for your main application areas (timeline, modals/windows).
+2.  **CSS Styling (DOS-like):** Focus *only* on the global CSS to achieve the DOS-like, monospace, black background, bold colors aesthetic.
+3.  **Core JavaScript Setup:** Request the basic JavaScript file structure (separate files for GUI, data interaction, etc.) and a simple main script to initialize the application.
+4.  **Timeline Drawing (Static):** Implement the basic drawing of the timeline line and a few static placeholder nodes using ASCII art, without any interactivity or data fetching. Focus purely on the visual representation.
+
+### Phase 3: Interactive Timeline & Node Display
+
+1.  **Dynamic Timeline Rendering:** Integrate the frontend with the backend to fetch timeline data and dynamically render nodes.
+2.  **Scrolling Functionality:** Implement the left/right scrolling for the timeline.
+3.  **Zoom Functionality:** Develop the zoom in/out logic, including how node text changes with zoom levels.
+4.  **Node Icons & Basic Display:** Render the `+`, `=`, `-`, `?`, and `p` icons for each node.
+
+### Phase 4: Node Interactions & Modals/Windows
+
+1.  **Hover Effects (Node Abbreviations, Arrows):** Implement the hover effects for node text abbreviation and the connection line display when hovering over arrows.
+2.  **Review Window (`?` icon):** Create the functionality for the review "window" to appear on hover or click.
+3.  **Photo Browser (`p` icon):** Implement the photo browser "window" with its close button, navigation, and photo display.
+4.  **Score Editing (Owner Only):** Develop the interactive score editing "window" for owners.
+5.  **Adding New Nodes (Owner Only):** Implement the functionality for owners to click on the timeline to add new nodes.
+
+### Phase 5: Advanced Interactions & Refinements
+
+1.  **Connection Editing (Owner Only):** Implement the logic for owners to specify node connections.
+2.  **Image Uploads (Owner Only):** Develop the photo upload functionality through the photo browser.
+3.  **Error Handling & User Feedback:** Add robust error handling and user feedback mechanisms throughout the app.
+4.  **Refinement & Polish:** Address any remaining UI/UX details, performance optimizations, and final bug fixes.
+
+---
+
+## How Your Prompt Could Be Better Worded
+
+Your prompt is generally well-worded and clear, but here are some suggestions for improvement to make it even more precise and actionable for an AI (or a human developer):
+
+### General Advice
+
+* **Specify Technologies (Where Applicable):** You mentioned FastAPI, which is great. For the frontend, you've left it open ("I don't have an opinion on what frameworks..."). If you were to break it down, you might specify a popular frontend framework (React, Vue, Svelte) for a specific sub-prompt to get more focused code. For the database, you might also specify it (e.g., PostgreSQL, SQLite).
+* **Be Explicit with Data Flow:** While you mention REST calls, elaborating on *which* data goes *where* for specific interactions would be helpful. For example, "When a user clicks 'Add Node', send a POST request to `/api/timeline/nodes` with JSON payload `{date: 'YYYY-MM-DD', title: 'Node Title'}`."
+* **Clarify Interaction Triggers:** You do a good job with "INTERACTION:", but consistently using this or similar clear markers helps.
+* **Define "Window" Behavior More Precisely:** You use "window" and "ascii box" somewhat interchangeably. For AI generation, being very specific about whether it's a `div` styled as a box, a modal, or something else, would be useful. "The window can appear over, or the text can temporarily replace the obscured text on the timeline" is a good example of offering options, but when you give the prompt to an AI you'd want to pick one.
+* **Quantify Where Possible:** "Smoothly scroll" is good, but "smoothly scroll over 500ms" is even better. "75% of a screen width" is excellent!
+* **Separate Concerns in Prompting:** Even if you write one big document, when you pass sections to an AI, make sure each sub-prompt focuses on one core task or component.
+
+### Specific Wording Improvements
+
+* **"Archetecture" -> "Architecture":** A minor typo correction.
+* **"GUI/TUI" vs. "text-based GUI / web-based TUI":** You use both. While the latter is more descriptive, ensure consistency or clarify the distinction if there is one. "Web-based TUI" is a good term for what you're describing.
+* **"add a picture" / "add new photos":** Be consistent. Also, clarify *where* these photos are added (e.g., "add a photo *to a timeline node*").
+* **"modify review characters":** Do you mean the '+', '=', '-' icons? Or the content of the review text? Clarify. "Edit the score icons" or "edit the review content" would be more precise.
+* **"the pholo browser window should be text based":** Typo "pholo" -> "photo".
+* **"or it can replace the text on the timeline":** This is a critical design choice. For an AI prompt, pick one or specify conditions for when each applies. "The photo browser should appear as an HTML element (a modal) above the timeline, obscuring the content beneath it."
+* **"The amount the page scrolls should match the size of the timeline."**: This is a bit vague. Do you mean the scrollbar should accurately represent the full width of the timeline? Or that the timeline itself should be precisely scrollable without extra whitespace?
+* **"elements of the timeline will decrease in detail as the user zooms out, perhaps going down to just a single character (e.g. *) when the user is zoomed far out."**: This is good, but you can be more specific. "At zoom level X, nodes display full title. At zoom level Y, nodes display 3-char abbreviation. At zoom level Z, nodes display a single character '*'."
+* **"If two nodes share the same month, they should be order alphabetically."**: Great detail!
+* **"All mentions of 'windows' should be implemented with ascii boxes."**: Excellent clarity.
+* **"The user who owns the graph can specify nodes that lead to each other."**: This implies a separate interaction for creating these connections. You've detailed hovering, but how does the owner *create* the connection? This needs a dedicated interaction description.
+
+---
+
+## Design Ideas
+
+You've got a fantastic, unique design vision with the DOS-like aesthetic. Here are some ideas to enhance it:
+
+### Visual & UI Ideas
+
+* **Custom ASCII Font (CSS `font-family`):** While you specify monospace, you could explore actual ASCII or retro pixel fonts to enhance the DOS feel even further. Look into `font-face` rules for web fonts.
+* **Scanline Overlay:** Add a subtle CSS overlay that mimics old CRT monitor scanlines to truly nail the retro look.
+* **Flickering Text/Cursors:** Small, subtle CSS animations for a flickering text cursor or slight flicker on interactive elements could add to the authenticity.
+* **"Disk Access" Indicator:** When data is loading, instead of a modern spinner, display a simple `[ LOADING... ]` message or a `>` prompt like an old command line.
+* **Sound Effects (Subtle):** Consider very subtle, authentic retro computer sounds for interactions (e.g., a quiet "beep" on button press, a gentle "click" for scrolling). Ensure accessibility considerations if you do this.
+* **Border Animations:** When a "window" (modal) appears, have its ASCII border "draw" itself character by character for a brief moment.
+* **Color Palette Expansion:** You mention bold colors. Define a specific, limited palette (e.g., 16-color CGA/EGA palette) to ensure consistency and strong retro vibes.
+    * **Good:** Green for '+', Red for '-', White for '='.
+    * **Consider:** Specific shades of blue, cyan, magenta, yellow for other UI elements or highlights.
+* **Text Shadow/Glow:** A slight `text-shadow` can give the text a CRT "glow" effect.
+
+### Interaction Ideas
+
+* **Keyboard Navigation:** For a true "TUI" feel, implement comprehensive keyboard navigation. Users should be able to navigate the timeline, open windows, and interact with elements using arrow keys, Enter, Esc, etc., minimizing mouse reliance.
+* **Command Line Interface (Optional):** As a fun easter egg or advanced feature, allow users to type simple commands into a hidden "console" (e.g., `zoom in`, `add node "My Game" 1995-03`). This would be a significant undertaking but deeply fit the theme.
+* **Contextual Help (`F1`):** A classic DOS feature, hitting F1 could bring up a text-based help "window" explaining controls and features.
+* **"Boot Screen" Loading:** When the app first loads, have a quick, text-based "boot sequence" animation before the main timeline appears.
+
+---
+
+## How Your Prompt Could Be Better Organized or Formatted
+
+Your current organization with sections like `**** Intro ****`, `**** Product Design ****`, and sub-sections is good for a human reader. However, for an AI, you could enhance it by:
+
+### Using Markdown Headings Consistently
+
+You use `**** Intro ****` and `*** Data Storage ***`. While these are readable, standard Markdown headings (`#`, `##`, `###`) are universally understood and can help AI parse the structure more effectively.
+
+Example:
+
+```markdown
+# Intro
+
+## Product Design
+
+### Data Storage
+```
+
+### Logical Grouping & Prioritization
+
+You've already done this somewhat with your sections. When you break it down into smaller prompts for an AI, ensure each prompt focuses on a single, coherent task.
+
+### Explicitly Defining "The Ask"
+
+At the beginning of your overall prompt (if sending it all at once), you could add a clear statement like:
+
+"**GOAL:** Generate a design document and initial code structure for a web application called 'Geek History' or 'Origin Story' with a DOS-like, text-based user interface. The application will allow users to create and manage personal timelines of media they have consumed."
+
+And for individual sub-prompts:
+
+"**TASK:** Generate the FastAPI backend code for user authentication using OAuth for Google, Facebook, and X."
+
+### Numbered Lists for Specific Requirements
+
+While your bullet points are good, for complex lists (like the "detailed design bullet points"), numbered lists (`1.`, `2.`, `3.`) can sometimes convey order or a clear sequence of requirements more effectively, especially if some requirements depend on others.
+
+### Glossary (Optional but Helpful)
+
+If you use specific terms or concepts repeatedly (like "window" vs. "ascii box"), a small glossary at the beginning can ensure consistent understanding.
+
+### Example Re-formatted Section:
+
+```markdown
+# Intro
+
+I'm creating a web application, tentatively named "Geek History" or "Origin Story", which will display a personal timeline. The core concept is to allow users to document the books, games, movies, and TV shows that shaped their "geekness" over time. The application aims for an old-school, **DOS-like look and feel**, characterized by **all text-based elements and bold colors**.
+
+---
+
+# Product Design
+
+## Data Storage
+
+The application will communicate with a **FastAPI REST server** using standard REST calls to retrieve and persist all data.
+
+## Architecture
+
+* All JavaScript code must be organized into separate, cohesive files.
+    * **GUI/TUI-specific code** (e.g., drawing and erasing "windows", arrows, zoom logic) should reside in dedicated files.
+* **CSS styling** should be in a separate file.
+* All HTML element and attribute names must be in **lowercase**.
+
+## User Roles
+
+The application supports three distinct user roles:
+
+* **Admin:** Possesses full administrative privileges, capable of any action within the application.
+* **Owner:**
+    * Manages a specific timeline.
+    * Can **edit their owned timeline**, including:
+        * Adding or removing images.
+        * Adding new timeline nodes.
+        * Modifying review characters (e.g., '+', '=', '-').
+        * Editing contextual information for nodes.
+* **Viewer:**
+    * Can view all content that is not an editable element (e.g., a '+' icon within a photo browser will not be visible or interactive for a viewer).
+
+---
+
+# User Authentication
+
+## Sign-up and Login with OAuth
+
+Users will authenticate via **OAuth** for both account creation and login. Supported providers include:
+
+* Facebook
+* Google
+* X (formerly Twitter)
+
+The sign-up/login page must adhere to the overall **text-based or text-themed aesthetic**.
+
+---
+
+# User Interface: Web-based TUI
+
+The application's core display is a **timeline** representing chronological events, with earlier events on the left and later on the right.
+
+## Timeline Visuals
+
+* The timeline is a central line with **nodes branching perpendicularly** (either up or down).
+* Nodes are rendered as **ASCII boxes** containing text.
+    * Text within a node is limited to **15 characters**. Longer text will be truncated with an ellipsis (`...`), for a total maximum of **18 characters** including the ellipsis.
+* The timeline is **horizontally scrollable** for navigating through time.
+    * The scrollable area should accurately represent the full extent of the timeline's content.
+* Users can **zoom in and out** of the timeline.
+    * As users zoom out, timeline elements will decrease in detail, potentially reducing to a single character (e.g., `*`) at the furthest zoom level.
+* **Dates** should be displayed above or below the timeline at regular intervals, adjusting to the zoom level (e.g., years/decades when zoomed out, months when zoomed in).
+    * No resolution higher than months will be displayed.
+    * Nodes sharing the same month will be ordered **alphabetically**.
+* All on-screen "windows" (e.g., modals, pop-ups) must be visually represented with **ASCII boxes**.
+
+```
+
+By adopting these suggestions, you'll create a more precise, actionable, and effectively structured prompt for an AI, significantly increasing your chances of getting useful and relevant code or design insights.
+
+What part of this project are you most excited to build first?
+
+===
+
+Those suggestions are awesome. Let's start with the HTML page: please rewrite my
+prompt with just the basic timeline, with scrolling and zooming. Please
+incorporate all of your suggestions. For clarity, the FastAPI back end is a
+separate project and we're not building that here.
+
+=== Gemini's Answer ===
+Your enthusiasm is great! Focusing on the HTML page with basic timeline, scrolling, and zooming is an excellent first step.
+
+Here's your rewritten prompt, incorporating the suggestions for clarity, formatting, and specificity, focusing only on the frontend HTML/CSS/JS for the core timeline display:
+
+---
+
+# HTML Page: Core Timeline Display
+
+**GOAL:** Create the foundational HTML page (`index.html`), associated CSS, and JavaScript files to display a basic, interactive timeline. This initial deliverable focuses solely on the visual representation, horizontal scrolling, and zoom functionality of the timeline, adhering to the specified retro, text-based aesthetic.
+
+**IMPORTANT:** The FastAPI backend is a separate, existing project. This prompt **does not** include any backend integration (API calls, data fetching, authentication). All timeline data for this phase should be simulated or hardcoded on the frontend for demonstration purposes.
+
+---
+
+## 1. Aesthetic Requirements
+
+The web application aims for an old-school, **DOS-like look and feel**, characterized by **all text-based elements and bold colors**.
+
+### 1.1. Visuals
+
+* **Font Family:** The primary font family for the entire page must be `monospace`.
+* **Background:** The background "behind" the timeline should be `black`.
+* **Drawing Lines:** All timeline "drawing" lines (e.g., boxes, the main timeline line itself) should be `white`.
+* **Color Palette (Recommended):** Adhere to a limited, high-contrast color palette reminiscent of old CRT displays. Suggested colors for various elements (e.g., green for positive, red for negative, white for neutral) will be specified for specific elements later, but overall, maintain a bold, limited scheme.
+* **HTML Structure:** All HTML element and attribute names must be in **lowercase**.
+
+## 2. Architecture & File Structure
+
+The frontend code should be organized into separate, cohesive files.
+
+* `index.html`: The main HTML document.
+* `styles.css`: Contains all CSS styling rules.
+* `timeline.js`: Contains JavaScript code specifically for drawing, rendering, and managing the timeline's visual elements.
+* `interaction.js`: Contains JavaScript code specifically for handling user interactions related to the timeline (scrolling, zooming).
+* `main.js`: The main application entry point, responsible for initializing the other JavaScript modules.
+
+---
+
+## 3. Core Timeline Display
+
+The timeline represents events in time, with earlier events positioned on the left and later events on the right.
+
+### 3.1. Timeline Structure
+
+* The timeline will consist of a **horizontal line**.
+* **Nodes** will branch off perpendicularly from this line, either upwards or downwards.
+* Nodes should be rendered as **ASCII-style boxes**.
+    * Node text: Up to **15 characters**. If longer, it must be truncated with an ellipsis (`...`), for a total maximum of **18 characters** including the ellipsis.
+    * Example node representation:
+        ```
+        +---------------------*
+        <-| Node Title Here   |->
+        +---------------------*
+              |
+              |
+        ```
+* The timeline should dynamically adjust its width to match the total content (i.e., the span of all nodes from earliest to latest).
+
+### 3.2. Dates
+
+* Dates should be displayed **above or below the timeline line**.
+* Dates should appear at **regular intervals** based on the current zoom level.
+    * When zoomed out, dates might show years (e.g., `1990`, `2000`).
+    * When zoomed in, dates might show months (e.g., `Jan 1995`, `Feb 1995`).
+    * There should be **no resolution higher than months**.
+* If two nodes share the same month, they should be ordered **alphabetically**.
+
+### 3.3. Example Timeline Segment
+
+Here's an example showing what a couple nodes on the timeline might look like. Note that the main timeline line `-----` should extend across the page.
+
+```
+          +---------------------* =----------------------*
+          <-| Star Treks: The ... |->       <-| Star Trek: Deep ...  |->
+          +---------------------* +----------------------*
+                |                                 |
+                |                                 |
+--- 1987 -------- 1993 ------------------ 1995 -------- 1999 -----------
+```
+
+---
+
+## 4. Timeline Interaction
+
+### 4.1. Horizontal Scrolling
+
+* **Indicators:** Arrows (`<-` for left, `->` for right) should be visible on the extreme left and right edges of the timeline viewport. These serve as visual scroll controls.
+* **Interaction 1: Hover Scroll:** When the user hovers their mouse over a left/right scroll control, the timeline should smoothly scroll in that direction. The scrolling should continue as long as the mouse remains hovered.
+* **Interaction 2: Click Jump:** When the user clicks on a left/right scroll control, the timeline should immediately jump a fixed distance: **75% of the current screen width** in the scroll direction.
+* **Scroll Behavior:** Scrolling right means the left portion of the timeline will move out of view to the left, and more of the timeline content from the right will appear.
+
+### 4.2. Zooming
+
+* Users should be able to **zoom in and out** of the timeline.
+* **Zoom Mechanism:** The specific interaction for zooming (e.g., mouse wheel, dedicated zoom buttons `+`/`-`) is flexible, but prioritize a simple, intuitive text-based approach if possible (e.g., `[+]` and `[-]` buttons).
+* **Level of Detail:**
+    * As the user zooms out, the level of detail for timeline nodes should decrease.
+    * Nodes should be replaced with **abbreviations** when the zoom level makes them too small to fit their full titles.
+    * At the furthest zoom levels, nodes should be replaced by a **single character** (e.g., `*`).
+* **Mousing Over Node (Zoom-Dependent Detail):**
+    * When the mouse hovers over an abbreviated or single-character node, its **full title** (or a more detailed abbreviation if appropriate for the next zoom level) should temporarily appear.
+    * When the mouse moves off the node, its text should revert to the display appropriate for the current zoom level.
+
+---
+
+## 5. Unknown / Don't Care
+
+* No specific frontend framework (e.g., React, Vue, Svelte) is required or preferred for this task. Use vanilla JavaScript, HTML, and CSS.
+
+---
+
+==================================================
+==================================================
+=================               ==================
+================= My new prompt ==================
+=================               ==================
+==================================================
+==================================================
+
+Okay, that's a great start. I've made some changes. Please review the changes
+and also add in a feature where nodes can be selected: selected nodes will have
+yellow characters for drawing. The user can move between notes with the left and
+right arrow keys.
+
+# HTML Page: Core Timeline Display
+
+**GOAL:** Create the foundational HTML page (`index.html`), associated CSS, and JavaScript files to display a basic, interactive timeline. This initial deliverable focuses solely on the visual representation, horizontal scrolling, and zoom functionality of the timeline, adhering to the specified retro, text-based aesthetic.
+
+**IMPORTANT:** The FastAPI backend is a separate, existing project. This prompt **does not** include any backend integration (API calls, data fetching, authentication). All timeline data for this phase should be simulated or hardcoded on the frontend for demonstration purposes.
+
+---
+
+## 1. Aesthetic Requirements
+
+The web application aims for an old-school, **DOS-like look and feel**, characterized by **all text-based elements and bold colors**.
+
+### 1.1. Visuals
+
+* **Font Family:** The primary font family for the entire page must be
+`monospace`. Pick a font that fits the old-school DOS look and feel.
+* **Background:** The background "behind" the timeline should be `black`.
+* **Drawing Lines:** All timeline "drawing" lines (e.g., boxes, the main timeline line itself) should be `white`.
+* **Color Palette (Recommended):** Adhere to a limited, high-contrast color palette reminiscent of old CRT displays. Suggested colors for various elements (e.g., green for positive, red for negative, white for neutral) will be specified for specific elements later, but overall, maintain a bold, limited scheme.
+* **HTML Structure:** All HTML element and attribute names must be in **lowercase**.
+
+## 2. Architecture & File Structure
+
+The frontend code should be organized into separate, cohesive files.
+
+* `index.html`: The main HTML document.
+* `styles.css`: Contains all CSS styling rules.
+* `timeline.js`: Contains JavaScript code specifically for drawing, rendering, and managing the timeline's visual elements.
+* `interaction.js`: Contains JavaScript code specifically for handling user interactions related to the timeline (scrolling, zooming).
+* `main.js`: The main application entry point, responsible for initializing the other JavaScript modules.
+
+---
+
+## 3. Core Timeline Display
+
+The timeline represents events in time, with earlier events positioned on the left and later events on the right.
+
+### 3.1. Timeline Structure
+
+* The timeline will consist of a **horizontal line**.
+* **Nodes** will branch off perpendicularly from this line, either upwards or downwards.
+* Nodes should be rendered as **ASCII-style boxes**.
+    * Node text: Up to **15 characters**. If longer, it must be truncated with an ellipsis (`...`), for a total maximum of **18 characters** including the ellipsis.
+    * Example node representation:
+        ```
+        +---------------------*
+        <-| Node Title Here   |->
+        +---------------------*
+              |
+              |
+        ```
+* The timeline should dynamically adjust its width to match the total content (i.e., the span of all nodes from earliest to latest).
+
+### 3.2. Dates
+
+* Dates should be displayed within the timeline line, as part of the line
+  * example date inline
+     ```
+     ---------2025-05------------
+     ```
+* Dates should appear at **regular intervals** based on the current zoom level.
+* Dates should always be the same distance from each other.
+* If two nodes share the same month, they should be ordered **alphabetically**.
+
+### 3.3. Example Timeline Segment
+
+Here's an example showing what a couple nodes on the timeline might look like. Note that the main timeline line `-----` should extend across the page.
+
+```
+          +---------------------* =----------------------*
+          <-| Star Treks: The ... |->       <-| Star Trek: Deep ...  |->
+          +---------------------* +----------------------*
+                |                                 |
+                |                                 |
+--- 1987 -------- 1988 ------- 1989 ------- 1990 -------- 1991 -------
+```
+
+---
+
+## 4. Timeline Interaction
+
+### 4.1. Horizontal Scrolling
+
+* **Interaction 1: Jump:** When the user press the "up arrow" key or "down
+arrow" key, the timeline should immediately jump a fixed distance: **50% of the current screen width** in the scroll direction.
+
+### 4.2. Zooming
+
+* Users should be able to **zoom in and out** of the timeline.
+* **Zoom Mechanism:** zooming is controlled with the "page up" and "page down" keys.
+* There are three levels of zoom: month view, year view, and decade view. 
+* **Level of Detail:**
+    * In the "month" view users should see months on the timeline in the format
+"YYYY-MM"; nodes should have the full title text
+    * In the "year" view users should see years in the timeline in the format
+"YYYY"; users should see the full title text if it can fit, otherwise chop it
+off and add an ellipsis; user a smaller font in the year fiew
+    * in the "decade" view users should see the years in the timeline in the
+ format "'YY" (e.g. '20); use an even smaller font than the year view; start
+ with something reasonable and we'll edit it later.
+* **Mousing Over Node (Zoom-Dependent Detail):**
+    * When the mouse hovers over an abbreviated or single-character node, its **full title** (or a more detailed abbreviation if appropriate for the next zoom level) should temporarily appear.
+    * When the mouse moves off the node, its text should revert to the display appropriate for the current zoom level.
+
+---
+
+
+=== Gemini's Response ===
+
+Great iterative changes! You've refined some existing features and introduced a key new one: node selection. Let's review your updates and integrate the node selection functionality.
+
+---
+
+# HTML Page: Core Timeline Display
+
+**GOAL:** Create the foundational HTML page (`index.html`), associated CSS, and JavaScript files to display a basic, interactive timeline. This initial deliverable focuses solely on the visual representation, horizontal scrolling, and zoom functionality of the timeline, adhering to the specified retro, text-based aesthetic.
+
+**IMPORTANT:** The FastAPI backend is a separate, existing project. This prompt **does not** include any backend integration (API calls, data fetching, authentication). All timeline data for this phase should be simulated or hardcoded on the frontend for demonstration purposes.
+
+---
+
+## 1. Aesthetic Requirements
+
+The web application aims for an old-school, **DOS-like look and feel**, characterized by **all text-based elements and bold colors**.
+
+### 1.1. Visuals
+
+* **Font Family:** The primary font family for the entire page must be `monospace`. Select a font that evokes an old-school DOS aesthetic (e.g., "Press Start 2P", "IBM VGA9", or a generic system monospace font like `Consolas`, `Lucida Console`, `Monaco`, `monospace`).
+* **Background:** The background "behind" the timeline should be `black`.
+* **Drawing Lines:** All timeline "drawing" lines (e.g., boxes, the main timeline line itself) should be `white`.
+* **Color Palette (Recommended):** Adhere to a limited, high-contrast color palette reminiscent of old CRT displays. Suggested colors for various elements (e.g., green for positive, red for negative, white for neutral) will be specified for specific elements later, but overall, maintain a bold, limited scheme.
+* **HTML Structure:** All HTML element and attribute names must be in **lowercase**.
+
+## 2. Architecture & File Structure
+
+The frontend code should be organized into separate, cohesive files.
+
+* `index.html`: The main HTML document. This will contain the primary `<canvas>` element for rendering the timeline.
+* `styles.css`: Contains all CSS styling rules for the overall page and any non-canvas elements (e.g., scroll indicators, potential overlays).
+* `timeline.js`: Contains JavaScript code specifically for drawing, rendering, and managing the timeline's visual elements onto the `<canvas>`. This includes functions for drawing nodes, lines, dates, and handling different zoom levels.
+* `interaction.js`: Contains JavaScript code specifically for handling user interactions (keyboard events for scrolling, zooming, node selection; mouse hover for node detail). This module will call functions in `timeline.js` to trigger redraws.
+* `main.js`: The main application entry point, responsible for initializing the canvas, setting up event listeners, loading initial data (simulated), and orchestrating the other JavaScript modules.
+
+---
+
+## 3. Core Timeline Display
+
+The timeline represents events in time, with earlier events positioned on the left and later events on the right.
+
+### 3.1. Timeline Structure
+
+* The timeline will consist of a **horizontal line** drawn on the `<canvas>`.
+* **Nodes** will branch off perpendicularly from this line, either upwards or downwards.
+* Nodes should be rendered as **ASCII-style boxes** using characters drawn on the canvas.
+    * Node text: Up to **15 characters**. If longer, it must be truncated with an ellipsis (`...`), for a total maximum of **18 characters** including the ellipsis.
+    * Example node representation:
+        ```
+        +---------------------*
+        <-| Node Title Here   |->
+        +---------------------*
+              |
+              |
+        ```
+* The timeline should dynamically adjust its virtual width (the total scrollable area) to match the combined span of all nodes from the earliest to the latest date.
+
+### 3.2. Dates
+
+* Dates should be displayed **inline with the main timeline horizontal line**, as part of the line itself, rendered on the canvas.
+    * Example date inline:
+        ```
+        ---------2025-05------------
+        ```
+* Dates should appear at **regular, consistent intervals** along the timeline, dependent on the current zoom level.
+* If two nodes share the same month, they should be ordered **alphabetically** when displayed on the timeline.
+
+### 3.3. Example Timeline Segment
+
+Here's an example showing what a couple nodes on the timeline might look like, with inline dates. The main timeline line (`-` characters) should extend across the entire visible and scrollable range.
+
+```
+          +---------------------* =----------------------*
+          <-| Star Treks: The ... |->       <-| Star Trek: Deep ...  |->
+          +---------------------* +----------------------*
+                |                                 |
+                |                                 |
+--- 1987 -------- 1988 ------- 1989 ------- 1990 -------- 1991 -------
+```
+
+---
+
+## 4. Timeline Interaction
+
+### 4.1. Horizontal Scrolling
+
+* **Keyboard Control: Jump:** When the user presses the **"Up Arrow" key** or **"Down Arrow" key**, the timeline should immediately jump a fixed distance: **50% of the current screen width** in the scroll direction. (e.g., "Up Arrow" could scroll left/back in time, "Down Arrow" could scroll right/forward in time). *Clarify desired direction for each key.*
+
+### 4.2. Zooming
+
+* Users should be able to **zoom in and out** of the timeline.
+* **Zoom Mechanism:** Zooming is controlled with the **"Page Up" key (zoom in)** and **"Page Down" key (zoom out)**.
+* **Zoom Levels (Discrete):** There are three distinct, discrete levels of zoom:
+    * **Month View:**
+        * Timeline dates displayed in "YYYY-MM" format.
+        * Nodes display their **full title text**.
+    * **Year View:**
+        * Timeline dates displayed in "YYYY" format.
+        * Nodes display their **full title text if it fits** within the character limits of the zoomed-out node size; otherwise, truncate with an ellipsis.
+        * A **smaller font size** should be used for all text compared to the Month View.
+    * **Decade View:**
+        * Timeline dates displayed in "'YY" format (e.g., `'20` for 2020).
+        * An **even smaller font size** should be used for all text compared to the Year View. (Start with a reasonable initial smaller size, this can be fine-tuned later).
+        * Node text should be abbreviated significantly (e.g., to a single character or a very short abbreviation) or truncated with ellipsis to fit the very small node size.
+* **Mousing Over Node (Zoom-Dependent Detail):**
+    * When the mouse hovers over an abbreviated or single-character node, its **full title** (or a more detailed abbreviation appropriate for the next higher zoom level) should temporarily appear as an overlay or redraw of that specific node area.
+    * When the mouse moves off the node, its text should revert to the display appropriate for the current zoom level.
+
+### 4.3. Node Selection (NEW FEATURE)
+
+* **Selection Visuals:**
+    * When a node is selected, its **drawing characters (the ASCII box lines and arrows) should change from white to yellow**.
+    * The node's title text should remain white (or its default color).
+* **Keyboard Navigation:**
+    * Users can navigate between nodes using the **"Left Arrow" key** (to select the previous node in chronological order) and **"Right Arrow" key** (to select the next node in chronological order).
+    * When the timeline scrolls, the selected node should remain in view, and the timeline should automatically adjust its scroll position to keep the selected node visible and ideally centered (if space allows).
+* **Initial State:** Upon initial load, no node should be selected. The first press of a left/right arrow key should select the chronologically first/last node respectively (or the closest node to the current viewport center).
+
+---
+
+## 5. Unknown / Don't Care
+
+* No specific frontend framework (e.g., React, Vue, Svelte) is required or preferred for this task. Use vanilla JavaScript, HTML, and CSS, leveraging the HTML `<canvas>` element for drawing the timeline.
+
+---
+
+==================================================
+==================================================
+=================               ==================
+================= My new prompt ==================
+=================               ==================
+==================================================
+==================================================
+
+Great iterative changes! You've refined some existing features and introduced a key new one: node selection. Let's review your updates and integrate the node selection functionality.
+
+---
+
+# HTML Page: Core Timeline Display
+
+**GOAL:** Create the foundational HTML page (`index.html`), associated CSS, and JavaScript files to display a basic, interactive timeline. This initial deliverable focuses solely on the visual representation, horizontal scrolling, and zoom functionality of the timeline, adhering to the specified retro, text-based aesthetic.
+
+**IMPORTANT:** The FastAPI backend is a separate, existing project. This prompt **does not** include any backend integration (API calls, data fetching, authentication). All timeline data for this phase should be simulated or hardcoded on the frontend for demonstration purposes.
+
+---
+
+## 1. Aesthetic Requirements
+
+The web application aims for an old-school, **DOS-like look and feel**, characterized by **all text-based elements and bold colors**.
+
+### 1.1. Visuals
+
+* **Font Family:** The primary font family for the entire page must be `monospace`. Select a font that evokes an old-school DOS aesthetic (e.g., "Press Start 2P", "IBM VGA9", or a generic system monospace font like `Consolas`, `Lucida Console`, `Monaco`, `monospace`).
+* **Background:** The background "behind" the timeline should be `black`.
+* **Drawing Lines:** All timeline "drawing" lines (e.g., boxes, the main timeline line itself) should be `white`.
+* **Color Palette (Recommended):** Adhere to a limited, high-contrast color palette reminiscent of old CRT displays. Suggested colors for various elements (e.g., green for positive, red for negative, white for neutral) will be specified for specific elements later, but overall, maintain a bold, limited scheme.
+* **HTML Structure:** All HTML element and attribute names must be in **lowercase**.
+
+## 2. Architecture & File Structure
+
+The frontend code should be organized into separate, cohesive files.
+
+* `index.html`: The main HTML document. This will contain the primary `<canvas>` element for rendering the timeline.
+* `styles.css`: Contains all CSS styling rules for the overall page and any non-canvas elements (e.g., scroll indicators, potential overlays).
+* `timeline.js`: Contains JavaScript code specifically for drawing, rendering, and managing the timeline's visual elements onto the `<canvas>`. This includes functions for drawing nodes, lines, dates, and handling different zoom levels.
+* `interaction.js`: Contains JavaScript code specifically for handling user interactions (keyboard events for scrolling, zooming, node selection; mouse hover for node detail). This module will call functions in `timeline.js` to trigger redraws.
+* `main.js`: The main application entry point, responsible for initializing the canvas, setting up event listeners, loading initial data (simulated), and orchestrating the other JavaScript modules.
+
+---
+
+## 3. Core Timeline Display
+
+The timeline represents events in time, with earlier events positioned on the left and later events on the right.
+
+### 3.1. Timeline Structure
+
+* The timeline will consist of a **horizontal line** drawn on the `<canvas>`.
+* **Nodes** will branch off perpendicularly from this line, either upwards or downwards.
+* Nodes should be rendered as **ASCII-style boxes** using characters drawn on the canvas.
+    * Node text: Up to **15 characters**. If longer, it must be truncated with an ellipsis (`...`), for a total maximum of **18 characters** including the ellipsis.
+    * Example node representation:
+        ```
+        +---------------------*
+        <-| Node Title Here   |->
+        +---------------------*
+              |
+              |
+        ```
+* The timeline should dynamically adjust its virtual width (the total scrollable area) to match the combined span of all nodes from the earliest to the latest date.
+
+### 3.2. Dates
+
+* Dates should be displayed **inline with the main timeline horizontal line**, as part of the line itself, rendered on the canvas.
+    * Example date inline:
+        ```
+        ---------2025-05------------
+        ```
+* Dates should appear at **regular, consistent intervals** along the timeline, dependent on the current zoom level.
+* If two nodes share the same month, they should be ordered **alphabetically** when displayed on the timeline.
+
+### 3.3. Example Timeline Segment
+
+Here's an example showing what a couple nodes on the timeline might look like, with inline dates. The main timeline line (`-` characters) should extend across the entire visible and scrollable range.
+
+```
+          +---------------------* =----------------------*
+          <-| Star Treks: The ... |->       <-| Star Trek: Deep ...  |->
+          +---------------------* +----------------------*
+                |                                 |
+                |                                 |
+--- 1987 -------- 1988 ------- 1989 ------- 1990 -------- 1991 -------
+```
+
+---
+
+## 4. Timeline Interaction
+
+### 4.1. Horizontal Scrolling
+
+* **Keyboard Control: Jump:** When the user presses the **"Up Arrow" key** or **"Down Arrow" key**, the timeline should immediately jump a fixed distance: **50% of the current screen width** in the scroll direction. (e.g., "Up Arrow" could scroll left/back in time, "Down Arrow" could scroll right/forward in time). *Clarify desired direction for each key.*
+
+### 4.2. Zooming
+
+* Users should be able to **zoom in and out** of the timeline.
+* **Zoom Mechanism:** Zooming is controlled with the **"Page Up" key (zoom in)** and **"Page Down" key (zoom out)**.
+* **Zoom Levels (Discrete):** There are three distinct, discrete levels of zoom:
+    * **Month View:**
+        * Timeline dates displayed in "YYYY-MM" format.
+        * Nodes display their **full title text**.
+    * **Year View:**
+        * Timeline dates displayed in "YYYY" format.
+        * Nodes display their **full title text if it fits** within the character limits of the zoomed-out node size; otherwise, truncate with an ellipsis.
+        * A **smaller font size** should be used for all text compared to the Month View.
+    * **Decade View:**
+        * Timeline dates displayed in "'YY" format (e.g., `'20` for 2020).
+        * An **even smaller font size** should be used for all text compared to the Year View. (Start with a reasonable initial smaller size, this can be fine-tuned later).
+        * Node text should be abbreviated significantly (e.g., to a single character or a very short abbreviation) or truncated with ellipsis to fit the very small node size.
+* **Mousing Over Node (Zoom-Dependent Detail):**
+    * When the mouse hovers over an abbreviated or single-character node, its **full title** (or a more detailed abbreviation appropriate for the next higher zoom level) should temporarily appear as an overlay or redraw of that specific node area.
+    * When the mouse moves off the node, its text should revert to the display appropriate for the current zoom level.
+
+### 4.3. Node Selection (NEW FEATURE)
+
+* **Selection Visuals:**
+    * When a node is selected, its **drawing characters (the ASCII box lines and arrows) should change from white to yellow**.
+    * The node's title text should remain white (or its default color).
+* **Keyboard Navigation:**
+    * Users can navigate between nodes using the **"Left Arrow" key** (to select the previous node in chronological order) and **"Right Arrow" key** (to select the next node in chronological order).
+    * When the timeline scrolls, the selected node should remain in view, and the timeline should automatically adjust its scroll position to keep the selected node visible and ideally centered (if space allows).
+* **Initial State:** Upon initial load, no node should be selected. The first press of a left/right arrow key should select the chronologically first/last node respectively (or the closest node to the current viewport center).
+
+---
+
+## 5. Unknown / Don't Care
+
+* No specific frontend framework (e.g., React, Vue, Svelte) is required or preferred for this task. Use vanilla JavaScript, HTML, and CSS, leveraging the HTML `<canvas>` element for drawing the timeline.
+
+---
